@@ -37,6 +37,7 @@ ______________________________________________________
         Crie um projeto, ative a API Vision AI e gere uma chave de API na aba "Credenciais".
 
 ______________________________________________________
+## 📖 Sobre
 
 📚 Detalhes da Implementação
     🧠 Back-End
