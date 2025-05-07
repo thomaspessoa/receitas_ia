@@ -1,6 +1,5 @@
 import streamlit as st
 from PIL import Image as PILImage
-import speech_recognition as sr
 from deep_translator import GoogleTranslator
 from google.generativeai import configure, GenerativeModel
 
@@ -11,15 +10,15 @@ def gerar_receita_com_gemini(ingredientes, usar_so_ingredientes=True):
     prompt = f"""
 Você é um chef de cozinha renomado. Crie uma receita utilizando exclusivamente os seguintes ingredientes: {ingredientes}.
 Não adicione nenhum outro ingrediente que não esteja listado. 
-Liste claramente os INGREDIENTES e o MODO DE PREPARO.RECEITAS SIMPLES NÃO MUITO DIFICIL
+Liste claramente os INGREDIENTES e o MODO DE PREPARO. RECEITAS SIMPLES NÃO MUITO DIFÍCEIS
 """
     if not usar_so_ingredientes:
         prompt = f"""
 Você é um chef de cozinha renomado. Crie uma receita deliciosa, usando os seguintes ingredientes como base: {ingredientes}.
 Sinta-se à vontade para adicionar outros ingredientes que combinem bem com os fornecidos. 
-Liste claramente os INGREDIENTES e o MODO DE PREPARO.RECEITAS SIMPLES NÃO MUITO DIFICIL
+Liste claramente os INGREDIENTES e o MODO DE PREPARO. RECEITAS SIMPLES NÃO MUITO DIFÍCEIS
 """
-        
+
     try:
         modelo = GenerativeModel("gemini-1.5-flash")
         response = modelo.generate_content(prompt)
@@ -29,39 +28,10 @@ Liste claramente os INGREDIENTES e o MODO DE PREPARO.RECEITAS SIMPLES NÃO MUITO
         linhas = receita_pt.strip().split("\n")
         nome = linhas[0]
         passos = "\n".join(linhas[1:])
-
         return nome, passos
     except Exception as e:
         st.error(f"Erro ao gerar a receita: {e}")
         return None, None
-
-# Transcrição do áudio
-def transcrever_audio():
-    recognizer = sr.Recognizer()
-    source = sr.Microphone()
-
-    try:
-        source_stream = source.__enter__()
-        st.info("🎤 Por favor, fale agora!")
-        recognizer.adjust_for_ambient_noise(source_stream)
-        audio = recognizer.listen(source_stream)
-        st.info("🔍 Processando...")
-    except Exception as e:
-        st.error(f"Erro ao acessar o microfone: {e}")
-        return ""
-    finally:
-        source.__exit__(None, None, None)
-
-    try:
-        texto = recognizer.recognize_google(audio, language="pt-BR")
-        st.success(f"Insumos detectados: {texto}")
-        return texto
-    except sr.UnknownValueError:
-        st.error("Não consegui entender o que você disse.")
-        return ""
-    except sr.RequestError:
-        st.error("Erro ao acessar o serviço de reconhecimento.")
-        return ""
 
 # Função para identificar imagem
 def identificar_imagem(arquivo_imagem):
@@ -69,7 +39,7 @@ def identificar_imagem(arquivo_imagem):
         modelo_vision = GenerativeModel("gemini-1.5-flash")
         image = PILImage.open(arquivo_imagem)
         response = modelo_vision.generate_content(
-            ["Identifique todos os ingredientes visíve nesta imagem de comida.", image]
+            ["Identifique todos os ingredientes visíveis nesta imagem de comida.", image]
         )
         return response.text.strip()
     except Exception as e:
@@ -101,7 +71,8 @@ st.markdown("""
         }
         .stTextInput input {
             background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 8px;            color: #222222;
+            border-radius: 8px;
+            color: #222222;
             padding: 10px;
         }
         button {
@@ -114,12 +85,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-modo = st.radio("Como deseja informar os ingredientes?", ["🎤 Falar", "✏️ Digitar", "📸 Enviar imagem", "📄 Carregar arquivo de texto"])
+modo = st.radio("Como deseja informar os ingredientes?", ["✏️ Digitar", "📸 Enviar imagem", "📄 Carregar arquivo de texto"])
 ingredientes_texto = ""
-
-if modo == "🎤 Falar":
-    if st.button("Clique para falar"):
-        ingredientes_texto = transcrever_audio()
 
 if modo == "✏️ Digitar":
     ingredientes_texto = st.text_input("Digite os ingredientes separados por vírgula:")
@@ -171,7 +138,6 @@ if "ultima_receita" not in st.session_state:
 if "ingredientes_texto" not in st.session_state:
     st.session_state.ingredientes_texto = ""
 
-# Adicionando a opção de escolher se usa apenas os ingredientes fornecidos ou não
 usar_so_ingredientes = st.checkbox("Usar apenas os ingredientes fornecidos?", value=True)
 
 if ingredientes_texto.strip() and modo != "📸 Enviar imagem":
@@ -190,7 +156,7 @@ if st.session_state.ultima_receita:
         <div style="background-color: #ffffff; padding: 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-top: 20px;">
             <h2 style="color: #8e24aa; font-family: 'Segoe UI', sans-serif; text-align: center; font-weight: bold;">{nome}</h2>
             <h3 style="color: #6a1b9a; font-weight: bold;">👨‍🍳 Modo de Preparo:</h3>
-            <pre style="color: #3e3e3e; font-size: 17px; font-family: 'Segoe UI', sans-serif; white-space: pre-wrap; word-wrap: break-word;">
+            <pre style="color: #3e3e3e; font-size: 13px; font-family: 'Segoe UI', sans-serif; white-space: pre-wrap; word-wrap: break-word; overflow-x: auto;">
 {passos.replace('Ingredientes', '<b>Ingredientes</b>').replace('Modo de Preparo', '<b>Modo de Preparo</b>')}</pre>
         </div>
     """, unsafe_allow_html=True)
@@ -211,12 +177,11 @@ if st.button("❓ Como usar", use_container_width=True):
 if st.session_state.mostrar_ajuda:
     with st.container():
         st.markdown("""  
-            <div style="background-color: #f0f2f6; border: 1px solid #ccc; border-radius: 12px; padding: 20px; margin-top: 10px;2px 12px rgba(0,0,0,0.1);">
+            <div style="background-color: #f0f2f6; border: 1px solid #ccc; border-radius: 12px; padding: 20px; margin-top: 10px; box-shadow: 2px 2px 12px rgba(0,0,0,0.1);">
                 <h4 style="margin-top: 0;">📘 <b>Como usar o aplicativo:</b></h4>
                 <ol>
                     <li><b>Escolha o método</b> para informar os ingredientes:
                         <ul>
-                            <li>🎤 <b>Falar</b>: Clique no botão e fale claramente os ingredientes. Ex: "tomate, arroz, carne".</li>
                             <li>✏️ <b>Digitar</b>: Escreva os ingredientes separados por vírgula.</li>
                             <li>📸 <b>Imagem</b>: Envie uma imagem com os ingredientes visíveis.</li>
                             <li>📄 <b>Arquivo</b>: Carregue um arquivo .txt com os ingredientes.</li>
@@ -225,7 +190,7 @@ if st.session_state.mostrar_ajuda:
                     <li>Clique em <b>"Gerar receita"</b> e aguarde a IA criar a sugestão.</li>
                     <li>Veja o <b>nome da receita</b> e leia o <b>modo de preparo</b> com atenção.</li>
                 </ol>
-                <p style="margin-bottom: 10px;"><b>Dica:</b> fale ou digite os ingredientes com clareza para melhores resultados.</p>
+                <p style="margin-bottom: 10px;"><b>Dica:</b> digite com clareza os ingredientes para melhores resultados.</p>
             </div>
         """, unsafe_allow_html=True)
 
