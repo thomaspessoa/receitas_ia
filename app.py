@@ -82,6 +82,13 @@ st.markdown("""
             border-radius: 8px;
             padding: 0.5em 1em;
         }
+        
+        /* Aumentando o tamanho da fonte das opções de radio */
+        div[data-baseweb="radio"] label {
+            font-size: 18px !important;  /* Tamanho da fonte aumentado */
+            font-weight: bold;
+            color: #2f2f2f;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -153,13 +160,15 @@ else:
 if st.session_state.ultima_receita:
     nome, passos = st.session_state.ultima_receita
     st.markdown(f"""
-        <div style="background-color: #ffffff; padding: 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-top: 20px;">
-            <h2 style="color: #8e24aa; font-family: 'Segoe UI', sans-serif; text-align: center; font-weight: bold;">{nome}</h2>
-            <h3 style="color: #6a1b9a; font-weight: bold;">👨‍🍳 Modo de Preparo:</h3>
-            <pre style="color: #3e3e3e; font-size: 13px; font-family: 'Segoe UI', sans-serif; white-space: pre-wrap; word-wrap: break-word; overflow-x: auto;">
-{passos.replace('Ingredientes', '<b>Ingredientes</b>').replace('Modo de Preparo', '<b>Modo de Preparo</b>')}</pre>
-        </div>
-    """, unsafe_allow_html=True)
+    <div style="background-color: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px;">
+        <h2 style="color: #8e24aa; font-family: 'Segoe UI', sans-serif; text-align: center; font-weight: bold; font-size: 17px;">{nome}</h2>
+        <h3 style="color: #6a1b9a; font-weight: bold; font-size: 15px;">👨‍🍳 Modo de Preparo:</h3>
+        <pre style="color: #3e3e3e; font-size: 9px; font-family: 'Segoe UI', sans-serif; white-space: pre-wrap; word-wrap: break-word; overflow-x: auto; line-height: 1.3;">
+    {passos.replace('Ingredientes', '<b style="font-size:11px;">Ingredientes</b>').replace('Modo de Preparo', '<b style="font-size:11px;">Modo de Preparo</b>')}
+        </pre>
+    </div>
+""", unsafe_allow_html=True)
+
 
     if st.button("🎲 Gerar nova sugestão de receita"):
         st.info("🔁 Gerando nova sugestão de receita...")
